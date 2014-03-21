@@ -42,10 +42,8 @@ In addition to the output files from either GEMMA or FastLMM (depending on the o
 
   -Rank:		The rank of the motif returned, based on lowest p-value
   -Motif:		Sequence of the actual motif
-  -P-value:		P-value of the motif, pulled from either GEMMA or FastLMM output, 
-			rounded to 8 decimal places
-  -Coef:		Fixed-effect coefficient of the motif, pulled from either GEMMA or fastLMM, 
-			rounded to 8 decimal places
+  -P-value:		P-value of the motif, pulled from either GEMMA or FastLMM output, rounded to 8 decimal places
+  -Coef:		Fixed-effect coefficient of the motif, pulled from either GEMMA or fastLMM, rounded to 8 decimal places
   -NUTRs:		Number of UTRs from the UTR fasta file in which the motif was present
   -miRNAs matched:	List of miRNAs matched to the motif, along with their match position, where
 			[2] indicates a perfect seed match, [1] and [3] indicate offset seed matches,

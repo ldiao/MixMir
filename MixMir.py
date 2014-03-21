@@ -1,4 +1,4 @@
-# python wrapper for mixMIR
+# python wrapper for MixMir
 # Things to make sure you have:  gemma version 0.94 (allows
 # 	eigen decomposition of the kinship matrix to be saved).
 # Things which must be in the same folder as this script:
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         parser.add_argument('--N',type=str,default=20,help='How many top results to analyze (default is 20)')
         parser.add_argument('--mirf',type=str,required=True,help='miRNA sequence fasta file')
         parser.add_argument('--fast',type=str,default=0,help='Use option if using FastLMM to solve the mixed linear models (default is False)')
-        parser.add_argument('--out',type=str,required=False,default='mixMIR-out',help='Results output file basename (default is mixMIR-out)')
+        parser.add_argument('--out',type=str,required=False,default='MixMir-out',help='Results output file basename (default is MixMir-out)')
 
 	args = parser.parse_args()
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 		doKin = True
 
 	plinkf = out
-	resf = os.path.join(odir,obase+'-mixMIR-results.txt')
+	resf = os.path.join(odir,obase+'-MixMir-results.txt')
 
 	# if running fastLMM, file parsing is slightly different
         useFast = args.fast

@@ -12,12 +12,12 @@ import parseAll as pa
 # columns in output:
 #	- Rank
 # 	- Motif
-#	- P-value (rounded t9 8 decimal places)
+#	- P-value (rounded to 8 decimal places)
 #	- Fixed effect coefficient (rounded to 8 decimal places)
 #	- Number of UTRs containing motif
 # 	- miRNAs matched
 def doAll(resFile='output/test.assoc.txt',mirFile='testdat/testmirs.fa',
-		seqFile='testdat/test-utrs.fa',N = 20,useFast=False,outfn='mixMIR-results.txt'):
+		seqFile='testdat/test-utrs.fa',N = 20,useFast=False,outfn='MixMir-results.txt'):
 	loadMirs(mirFile=mirFile,userev2=True)
 
 	if useFast == False:	
@@ -31,7 +31,7 @@ def doAll(resFile='output/test.assoc.txt',mirFile='testdat/testmirs.fa',
 	Nutrs = utrCounts([row[0] for row in res[1:N+1]],seqf=seqFile,reverse=True)
 	out = expand(res[1:N+1], Nutrs, matches=matches)
 
-	print('Writing mixMIR results to '+str(outfn))
+	print('Writing MixMir results to '+str(outfn))
 	writeDat(out,outfn)
 
 def writeDat(dat,outfn,sep='\t'):
@@ -50,7 +50,7 @@ def read(f,sep='\t'):
 # columns in output:
 #	- Rank
 # 	- Motif
-#	- P-value (rounded t9 8 decimal places)
+#	- P-value (rounded to 8 decimal places)
 #	- Fixed effect coefficient (rounded to 8 decimal places)
 #	- Number of UTRs containing motif
 # 	- miRNAs matched
