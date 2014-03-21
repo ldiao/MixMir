@@ -1,6 +1,6 @@
 MixMir is written in Python.  It has been tested on Linux (Ubuntu).  
 
-In order to run MixMir, PLINK (v1.07) must be installed and a copy of the PLINK executable placed in the MixMir directory.  MixMir can run either GEMMA (v0.94) or FaST-LMM (v2.07) to solve mixed linear models (MLM).  While we include GEMMA v0.94 in the MixMir folder, FaST-LMM should be downloaded from http://research.microsoft.com/en-us/um/redmond/projects/mscompbio/fastlmm/.  The executable script should then be placed in the MixMir folder.
+In order to run MixMir, PLINK (v1.07) must be installed (http://pngu.mgh.harvard.edu/~purcell/plink/) and a copy of the PLINK executable placed in the MixMir directory.  MixMir can run either GEMMA (v0.94) or FaST-LMM (v2.07) to solve mixed linear models (MLM).  While we include GEMMA v0.94 in the MixMir folder, FaST-LMM should be downloaded from http://research.microsoft.com/en-us/um/redmond/projects/mscompbio/fastlmm/.  The executable script should then be placed in the MixMir folder.
 
 The user should make sure that PLINK, GEMMA and FaST-LMM are executable before running MixMir.  This can be done by, for example, executing the command 
 
@@ -10,7 +10,7 @@ You can run an example of MixMir by using the data in the testdata folder.  This
 
 python MixMir.py --seqf testdat/test-utrs.fa --exprf testdat/test-exprs.txt --mirf testdat/testmirs.fa --k 6 --N 20 --fast 0 --out testdat/test
 
-This script will produce a list of the top 20 motifs with corresponding matches to microRNAs (miRNAs) in testdat/testmirs.fa and write to the file testdat/test-MixMir-results.txt.gemma.  If we chose the option --fast 1 instead, which uses FaST-LMM to solve the MLM instead of GEMMA, the results file will be testdat/test-MixMir-results.txt.fastlmmc.
+This script will produce a list of the top 20 motifs with corresponding matches to microRNAs (miRNAs) in testdat/testmirs.fa and write to the file testdat/test-MixMir-results.txt.gemma.  If we chose the option --fast 1 instead, which uses FaST-LMM to solve the MLM instead of GEMMA, the results file will be testdat/test-MixMir-results.txt.fastlmmc. Mature miRNA sequences can be downloaded from miRBase (http://www.mirbase.org/).
 
 For assistance on the parameters, type 
 
