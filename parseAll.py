@@ -21,11 +21,13 @@ import itertools
 # Also, fastLMM requires that phenotype data be family ID, individual ID, value
 # (tab-separated)
 # if doKin == False, doesn't create a kinship matrix
+# **Note:  While the motif length used to create the kinship matrix is given by k,
+# we may want to analyze motifs of a different length, i.e. 6
 def doAll(doKin=True,seqf='testdat/test-utrs.fa',exprf='testdat/test-exprs.txt',
 		outfnkin='testdat/test-kin.tsv',
 		outPedFile='testdat/test.ped',
 		outMapFile='testdat/test.map',
-		k=6,frac=False,useFast=False):
+		kkin=6,kmotif=6,frac=False,useFast=False):
 
 	# load sequences, expressions
 	utrs = loadfa(fname=seqf)
@@ -38,16 +40,26 @@ def doAll(doKin=True,seqf='testdat/test-utrs.fa',exprf='testdat/test-exprs.txt',
 	# get genes with overlapping expression and sequence data
 	genes = overlapGenes(dutrs,dexprs)
 
-	# load motifs
-	motifs = loadMotifs(k=k)
+	# load motifs for kinship matrix
+	kin_motifs = loadMotifs(k=kkin)
+	# get motif counts for each transcript
+	kin_dcounts = getCounts(genes,dutrs,kin_motifs,frac=frac)
+
+	# clean dcounts and motifs:  remove motifs with no count information
+	kin_dcounts,kin_motifs = clean(kin_dcounts,kin_motifs)
+
+	if doKin == True:
+		makeKin(dcounts=kin_dcounts,genes=genes,outfn=outfnkin,useFast=useFast)
+
+	del kin_motifs, kin_dcounts
+
+	# load motifs for analysis
+	motifs = loadMotifs(k=kmotif)
 	# get motif counts for each transcript
 	dcounts = getCounts(genes,dutrs,motifs,frac=frac)
 
 	# clean dcounts and motifs:  remove motifs with no count information
 	dcounts,motifs = clean(dcounts,motifs)
-
-	if doKin == True:
-		makeKin(dcounts=dcounts,genes=genes,outfn=outfnkin,useFast=useFast)
 
 	makePed(genes=genes,dcounts=dcounts,dexprs=dexprs,outfn=outPedFile)
 	makeMap(motifs,outfn=outMapFile)
