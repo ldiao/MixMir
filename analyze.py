@@ -6,16 +6,15 @@ import scipy.stats as stat
 import parseAll as pa
 
 
-# This script takes as input a GEMMA outfile, miRNA fasta file, and P-value cutoff. It outputs
-# the results of GEMMA motifs matched to miRNAs.
-# It combines GEMMA and FASTLMM results and matches to microRNAs to produce final output of MixMir
-# columns in output:
-#	- Rank
+# This script takes as input either a GEMMA or a FaST-LMM output file, a miRNA fasta file and P-value cutoff. 
+# It outputs the results of motifs matched to miRNAs to produce final output of MixMir.
+# The columns in the output file are:
+#	- Rank of motif
 # 	- Motif
-#	- P-value (rounded to 8 decimal places)
+#	- Nominal P-value (i.e. not corrected for multiple testing, rounded to 8 decimal places) 
 #	- Fixed effect coefficient (rounded to 8 decimal places)
 #	- Number of UTRs containing motif
-# 	- miRNAs matched
+# 	- miRNAs matched, if any
 def doAll(resFile='output/test.assoc.txt',mirFile='testdat/testmirs.fa',
 		seqFile='testdat/test-utrs.fa',N = 20,useFast=False,outfn='MixMir-results.txt'):
 	loadMirs(mirFile=mirFile,userev2=True)
@@ -46,7 +45,7 @@ def read(f,sep='\t'):
 	ifile.close()
 	return(dat)
 
-# combines GEMMA/FASTLMM results and motif matches to produce final dataset
+# match motifs from the mixed linear model solver to the microRNA sequences
 # columns in output:
 #	- Rank
 # 	- Motif
@@ -172,7 +171,7 @@ def matchMotifList(L,matchPos=['1','2','3','A1']):
 
 	return(allMatches)
 
-# flattens matches for a given motif
+# flatten a list of lists of matches for a given motif to output 
 def flattenMatches(matches):
 	# motif name
 	newmatches = [matches[0][1]]
