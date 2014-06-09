@@ -1,11 +1,11 @@
-# python wrapper for MixMir
-# Things to make sure you have:  gemma version 0.94 (allows
-# 	eigen decomposition of the kinship matrix to be saved).
-# Things which must be in the same folder as this script:
+# Main Python wrapper that implements MixMir
+# Things to make sure you have:  gemma version 0.94 (allows eigen decomposition of the kinship matrix to be saved) or fastLMM. 
+# Other mixed linear model solvers can be used but they are not currently supported by the MixMir code.
+# Files which must be in the same folder as this script:
 # 	- gemma version 0.94 executable
 #	- sequence/utrs fasta file:  refseq IDs
-#	- expression file: tab-separated file of gene names and expression values
-#	- mirna fasta file
+#	- gene expression file: tab-separated file of gene names and expression values
+#	- miRNA fasta file (mature microRNA sequences)
 
 # import helper files
 import parseAll
