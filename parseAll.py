@@ -1,26 +1,29 @@
-# parses the mouse UTR file
+# parses the UTR file
 import re
 import numpy as np
 import os
 import itertools
 
-# loads utrs and exprs; then writes them out again
-# containing only the overlapping set of genes
-# if useFast == True, i.e. if we are using fastLMMC to solve the MLM,
-# then we need to write a new expressions file with 
-# gene name, gene name, expression (tab delimitd)
+# This script loads the UTR file (e.g. test-utrs.fa) and the gene expression file (e.g. test-exprs.txt). It computes a correlation
+# matrix of all UTRs using the kmer counts in each UTR and outputs the correlation matrix (e.g. test-kin.tsv). It also outputs the
+# UTR and expression data (e.g. test.ped) in a format that can be read by the program PLINK, keeping only the set of genes 
+# with both UTR and expression data.  MixMir allows the use of different mixed linear model solvers and if we use the solver fastLMM 
+# (set option "useFast = True") then we need to write out a tab delimited expressions file with the following data:
+# gene name, gene name, expression
+# The script also outputs a map file (e.g. test.map) that together with test-kin.tsv and test.ped are required by the PLINK software.
 
-# Creates a matrix of the counts of kmers when given sequence data
-# if a list of genes is not provided, then all genes will be used
-# frac = True means fractional counts are returned, i.e. accounts for 
+# If a list of genes is not provided, then all genes will be used
+
+# The following is the list of options to this script:
+# frac = True means fractional counts of motifs are returned, i.e. accounts for 
 # 	the length of each sequence--this is the recommended setting
 # frac = False means only absolute counts are returned in the matrix.
-# useFast == True means we parse for fastLMM instead of GEMMA
+# useFast == True means we parse the data for input to fastLMM instead of GEMMA
 # fastLMM requires a different format for kinship matrices, namely that header and 
 # column must contain family ID and individual ID, separated by a space
 # Also, fastLMM requires that phenotype data be family ID, individual ID, value
 # (tab-separated)
-# if doKin == False, doesn't create a kinship matrix
+# if doKin == False, do not create a kinship matrix
 # **Note:  While the motif length used to create the kinship matrix is given by k,
 # we may want to analyze motifs of a different length, i.e. 6
 def doAll(doKin=True,seqf='testdat/test-utrs.fa',exprf='testdat/test-exprs.txt',
