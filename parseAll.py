@@ -12,8 +12,6 @@ import itertools
 # gene name, gene name, expression
 # The script also outputs a map file (e.g. test.map) that together with test-kin.tsv and test.ped are required by the PLINK software.
 
-# If a list of genes is not provided, then all genes will be used
-
 # The following is the list of options to this script:
 # frac = True means fractional counts of motifs are returned, i.e. accounts for 
 # 	the length of each sequence--this is the recommended setting
@@ -24,8 +22,8 @@ import itertools
 # Also, fastLMM requires that phenotype data be family ID, individual ID, value
 # (tab-separated)
 # if doKin == False, do not create a kinship matrix
-# **Note:  While the motif length used to create the kinship matrix is given by k,
-# we may want to analyze motifs of a different length, i.e. 6
+# **Note:  While the motif length used to create the kinship matrix is given by k (option kkin),
+# we may want to analyze motifs of a different length, e.g. 6 for microRNAs (option kmotif)
 def doAll(doKin=True,seqf='testdat/test-utrs.fa',exprf='testdat/test-exprs.txt',
 		outfnkin='testdat/test-kin.tsv',
 		outPedFile='testdat/test.ped',
