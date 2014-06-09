@@ -1,4 +1,4 @@
-# analyze results, compare with miReduce and also the actual mirs
+# analyze results of the mixed linear model solver, compare with miReduce and also the microRNAs
 import re
 import numpy as np
 import scipy.stats as stat
@@ -6,9 +6,9 @@ import scipy.stats as stat
 import parseAll as pa
 
 
-# given GEMMA outfile, mirna fasta file, and cutoff, writes out
-# results of GEMMA motifs matched to miRNAs
-# combines GEMMA/FASTLMM results and motif matches to produce final dataset
+# This script takes as input a GEMMA outfile, miRNA fasta file, and P-value cutoff. It outputs
+# the results of GEMMA motifs matched to miRNAs.
+# It combines GEMMA and FASTLMM results and matches to microRNAs to produce final output of MixMir
 # columns in output:
 #	- Rank
 # 	- Motif
@@ -27,7 +27,7 @@ def doAll(resFile='output/test.assoc.txt',mirFile='testdat/testmirs.fa',
 	
 	matches = matchMotifList([row[0] for row in res[1:N+1]])
 	
-	# number of containing UTRs for each motif
+	# compute the number of UTRs that contain each motif
 	Nutrs = utrCounts([row[0] for row in res[1:N+1]],seqf=seqFile,reverse=True)
 	out = expand(res[1:N+1], Nutrs, matches=matches)
 
@@ -72,9 +72,9 @@ def expand(res,Nutrs,matches):
 	return(out)
 
 
-# Loads "true" mirna data from .fa file
+# Loads miRNA data from .fa file
 # Creates 4 global dictionaries, accounting for offset
-# 	6mers, and also including A1 matching
+# 	6mers matches to miRNAs, including A1 matching
 # userev == True:  
 def loadMirs(mirFile,userev2 = False):
 	global mirs1, mirs2, mirs3, mirsA1
@@ -121,7 +121,7 @@ def loadMirs(mirFile,userev2 = False):
 			mirsA1[seqA1] = [mir]
 
 # load results from Gemma .assoc.txt file
-# reverse = True:  get reverse complement of motifs
+# if reverse = True:  get reverse complement of motifs
 def loadGemmaRes(f='output/test.assoc.txt',reverse=True):
 	gem = read(f)
 	gem = gem[1:]
@@ -137,7 +137,7 @@ def loadGemmaRes(f='output/test.assoc.txt',reverse=True):
 
 
 # load results from FastLMM results file
-# reverse = True:  get reverse complement of motifs
+# if reverse = True:  get reverse complement of motifs
 def loadFastRes(f='test.out.txt',reverse=True):
 	fast = read(f)
 	fast = fast[1:]
@@ -186,7 +186,7 @@ def flattenMatches(matches):
 	newmatches.append(mirs)
 	return(newmatches)
 
-# given a motif, matches to mir database
+# given a motif, matches to microRNA database
 def matchMotif(motif,matchPos=['1','2','3','A1']):
 	matches = []
 	if '1' in matchPos:
@@ -291,7 +291,7 @@ def is53p(m):
 	else:
 		return(m)
 
-# see if mirna is "close" to another, i.e.
+# see if miRNA name is "close" to another miRNA name, i.e.
 # let-7a, let-7b, let-7c, etc.
 def isClose(m): 
 	s = re.search('\d+[a-z]$',m)
