@@ -13,8 +13,6 @@ import itertools
 # The script also outputs a map file (e.g. test.map) that together with test-kin.tsv and test.ped are required by the PLINK software.
 
 # The following is the list of options to this script:
-# frac = True means fractional counts of motifs are returned, i.e. accounts for 
-# 	the length of each sequence--this is the recommended setting
 # frac = False means only absolute counts are returned in the matrix.
 # useFast == True means we parse the data for input to fastLMM instead of GEMMA
 # fastLMM requires a different format for kinship matrices, namely that header and 
@@ -25,228 +23,246 @@ import itertools
 # **Note:  While the motif length used to create the kinship matrix is given by k (option kkin),
 # we may want to analyze motifs of a different length, e.g. 6 for microRNAs (option kmotif)
 def doAll(doKin=True,seqf='testdat/test-utrs.fa',exprf='testdat/test-exprs.txt',
-		outfnkin='testdat/test-kin.tsv',
-		outPedFile='testdat/test.ped',
-		outMapFile='testdat/test.map',
-		kkin=6,kmotif=6,frac=False,useFast=False):
+            outfnkin='testdat/test-kin.tsv',
+            outPedFile='testdat/test.ped',
+            outMapFile='testdat/test.map',
+            kkin=6,kmotif=6,frac=False,useFast=False):
+    '''Parses files for PLINK: Outputs .ped and .map files. Outputs kinship matrix file.
+    Keyword arguments:
+    doKin -- Create the kinship or not (True/False)
+    seqf -- UTRs sequence file
+    exprf -- expression file with identifiers in first column and expression values in second column
+    outfnkin -- Output filename for kinship file
+    outPedFile -- Output filename for .ped file
+    outMapFile -- Output filename for .map file
+    kkin -- Motif length for construction of the kinship matrix
+    kmotif -- Motif length analyzed
+    frac -- Return motif as counts or as fractional counts, based on UTR sequence length (False/True)
+    useFast -- Parses files for running with FaST-LMM or GEMMA (True/False)
+    '''
 
-	# load sequences, expressions
-	utrs = loadfa(fname=seqf)
-	exprs = loadmic(fname=exprf)
+    # load sequences, expressions
+    utrs = loadfa(fname=seqf)
+    exprs = loadmic(fname=exprf)
 
-	# make dictionaries of transcripts and sequences, expressions
-	dutrs = makeFaDict(utrs)
-	dexprs = makeExprDict(exprs)
+    # make dictionaries of transcripts and sequences, expressions
+    dutrs = makeFaDict(utrs)
+    dexprs = makeExprDict(exprs)
 
-	# get genes with overlapping expression and sequence data
-	genes = overlapGenes(dutrs,dexprs)
+    # get genes with overlapping expression and sequence data
+    genes = overlapGenes(dutrs,dexprs)
 
-	# load motifs for kinship matrix
-	kin_motifs = loadMotifs(k=kkin)
-	# get motif counts for each transcript
-	kin_dcounts = getCounts(genes,dutrs,kin_motifs,frac=frac)
+    # load motifs for kinship matrix
+    kin_motifs = loadMotifs(k=kkin)
+    # get motif counts for each transcript
+    kin_dcounts = getCounts(genes,dutrs,kin_motifs,frac=frac)
 
-	# clean dcounts and motifs:  remove motifs with no count information
-	kin_dcounts,kin_motifs = clean(kin_dcounts,kin_motifs)
+    # clean dcounts and motifs:  remove motifs with no count information
+    kin_dcounts,kin_motifs = clean(kin_dcounts,kin_motifs)
 
-	if doKin == True:
-		makeKin(dcounts=kin_dcounts,genes=genes,outfn=outfnkin,useFast=useFast)
+    if doKin == True:
+        makeKin(dcounts=kin_dcounts,genes=genes,outfn=outfnkin,useFast=useFast) 
 
-	del kin_motifs, kin_dcounts
+    del kin_motifs, kin_dcounts
 
-	# load motifs for analysis
-	motifs = loadMotifs(k=kmotif)
-	# get motif counts for each transcript
-	dcounts = getCounts(genes,dutrs,motifs,frac=frac)
+    # load motifs for analysis
+    motifs = loadMotifs(k=kmotif)
+    # get motif counts for each transcript
+    dcounts = getCounts(genes,dutrs,motifs,frac=frac)
 
-	# clean dcounts and motifs:  remove motifs with no count information
-	dcounts,motifs = clean(dcounts,motifs)
+    # clean dcounts and motifs:  remove motifs with no count information
+    dcounts,motifs = clean(dcounts,motifs)
 
-	makePed(genes=genes,dcounts=dcounts,dexprs=dexprs,outfn=outPedFile)
-	makeMap(motifs,outfn=outMapFile)
+    makePed(genes=genes,dcounts=dcounts,dexprs=dexprs,outfn=outPedFile)
+    makeMap(motifs,outfn=outMapFile)
 
-	# fastlmmc requires a special phenotype file
-	if useFast == True:
-		f = open(exprf + '.fastlmmc','w')
-		for g in genes:
-			f.write(g+'\t'+g+'\t'+str(dexprs[g])+'\n')
-		f.close()
+    # fastlmmc requires a special phenotype file
+    if useFast == True:
+        f = open(exprf + '.fastlmmc','w')
+        for g in genes:
+            f.write(g+'\t'+g+'\t'+str(dexprs[g])+'\n')
+        f.close()
 
 def load(fname,sep='\t'):
-	f = open(fname,'r')
-	dat = [row.strip().split(sep) for row in f.readlines()]
-	f.close()
-	return(dat)
+    f = open(fname,'r')
+    dat = [row.strip().split(sep) for row in f.readlines()]
+    f.close()
+    return(dat)
 
 def writeDat(dat,outfn,sep='\t'):
-	f = open(outfn,'w')
-	for row in dat:
-		f.write(sep.join([str(x) for x in row])+'\n')
-	f.close()
+    f = open(outfn,'w')
+    for row in dat:
+        f.write(sep.join([str(x) for x in row])+'\n')
+    f.close()
 
 # load fasta file
 def loadfa(fname='testdat/test-utrs.fa'):
-	f = open(fname)
-	utrs = [row.strip() for row in f.readlines()]
-	f.close()
+    f = open(fname)
+    utrs = [row.strip() for row in f.readlines()]
+    f.close()
 
-	return(utrs)
+    return(utrs)
 
 # load microarray expression file and normalize
 def loadmic(fname='testdat/test-exprs.txt'):
-	f = open(fname)
-	exprs = [row.strip().split('\t') for row in f.readlines()]
-	f.close()
-	
-	exprs = [[row[0],float(row[1])] for row in exprs]
+    f = open(fname)
+    exprs = [row.strip().split('\t') for row in f.readlines()]
+    f.close()
+    
+    exprs = [[row[0],float(row[1])] for row in exprs]
 
-	return(exprs)
+    return(exprs)
 
 # makes the output from loadfa into a dictionary
-# with refseq IDs as keys and sense, sequence as entries
+# with refseq IDs as keys and sense, sequence as values
 def makeFaDict(utrs):
-	d = {}
-	name,strand = getInfo(utrs[0])
-	d[name] = [strand]
-	seq = ''
+    d = {}
+    name,strand = getInfo(utrs[0])
+    d[name] = [strand]
+    seq = ''
 
-	for row in utrs[1:]:
-		if row[0] == '>':
-			d[name].append(seq)
+    for row in utrs[1:]:
+        if row[0] == '>':
+            d[name].append(seq)
 
-			name,strand = getInfo(row)
-			d[name] = [strand]
-			seq = ''
-		else:
-			seq = seq + row
+            name,strand = getInfo(row)
+            d[name] = [strand]
+            seq = ''
+        else:
+            seq = seq + row
 
-	d[name].append(seq)
-	return(d)
+    d[name].append(seq)
+    return(d)
 
+# makes a dictionary of expression values, with
+# IDs as keys and expression values as values
 def makeExprDict(exprs):
-	d = {}
-	for row in exprs:
-		if row[0] not in d:
-			d[row[0]] = row[1]
-		else:
-			print(row[0],'already in dictionary!  Duplicate entry warning')
-			return(None)
+    d = {}
+    for row in exprs:
+        if row[0] not in d:
+            d[row[0]] = row[1]
+        else:
+            print(row[0],'already in dictionary!  Duplicate entry warning')
+            return(None)
 
-	return(d)
+    return(d)
 
 
 # string here is the '>' line in a fasta
 # file, which includes the gene name, sense, etc.
 def getInfo(string):
-	m = re.search('(?<=refGene_)\w+_\d+',string)
-	if m:
-		name = m.group(0)
-	else:
-		print('No refseq ID detected',string)
-		return(None)
-	
-	m = re.search('(?<=strand=)[+-]',string)
-	if m:
-		strand = m.group(0)
-	else:
-		print('No strand info detected',string)
-		return(None)
+    m = re.search('(?<=refGene_)\w+_\d+',string)
+    if m:
+        name = m.group(0)
+    else:
+        print('No refseq ID detected',string)
+        return(None)
 
-	return(name,strand)
+    m = re.search('(?<=strand=)[+-]',string)
+    if m:
+        strand = m.group(0)
+    else:
+        print('No strand info detected',string)
+        return(None)
+
+    return(name,strand)
 
 # gets utrs and exprs data only for those genes with both
 # utrs and exprs both as dictionary
 def overlapGenes(dutrs,dexprs):
-	both = set(dutrs.keys()) & set(dexprs.keys())
-	both = list(both)
+    both = set(dutrs.keys()) & set(dexprs.keys())
+    both = list(both)
 
-	# remove short UTRs (short defined as < 10nts)
-	both = [b for b in both if len(dutrs[b][1]) >= 10]
-	both.sort()
-	return(both)
+    # remove short UTRs (short defined as < 10nts)
+    both = [b for b in both if len(dutrs[b][1]) >= 10]
+    both.sort()
+    return(both)
 
 ###############################################################
 ############### Getting counts information ####################
 ############ and making kinship matrices ######################
 ###############################################################
+# gets a list of all possible motifs of length k
 def loadMotifs(k=6):
-	nts = ['A','C','T','G']
-	l = itertools.product(nts,repeat=k)
-	motifs = [''.join(x) for x in l]
-	return(motifs)
+    nts = ['A','C','T','G']
+    l = itertools.product(nts,repeat=k)
+    motifs = [''.join(x) for x in l]
+    return(motifs)
 
 # for each gene, gets counts of each motif in the utr
 def getCounts(genes,dutrs,motifs,frac=False):
-	dcounts = {}
-	for g in genes:
-		c = [dutrs[g][1].count(m) for m in motifs]
-		dcounts[g] = c
+    dcounts = {}
+    for g in genes:
+        c = [dutrs[g][1].count(m) for m in motifs]
+        dcounts[g] = c
 
-	if frac == True:
-		for x in dcounts:
-			dcounts[x] = fractionate(dcounts[x])
+    if frac == True:
+        for x in dcounts:
+            dcounts[x] = fractionate(dcounts[x])
 
-	return(dcounts)
+    return(dcounts)
 
+# writes out the motif counts in UTRs
 def writeCounts(geneNames,motifs,dcounts,outfn):
-	f = open(outfn,'w')
-	f.write('\t'.join(motifs)+'\n')
-	for gene in geneNames:
-		newrow = [gene] + [str(x) for x in dcounts[gene]]
-		f.write('\t'.join(newrow) + '\n')
-	f.close()
+    f = open(outfn,'w')
+    f.write('\t'.join(motifs)+'\n')
+    for gene in geneNames:
+        newrow = [gene] + [str(x) for x in dcounts[gene]]
+        f.write('\t'.join(newrow) + '\n')
+    f.close()
 
 # for a list of counts, c, returns
 # fractional c
 def fractionate(c):
-	s = float(sum(c))
-	if s != 0:
-		c = [round(x/s,4) for x in c]
-	return(c)
+    s = float(sum(c))
+    if s != 0:
+        c = [round(x/s,4) for x in c]
+    return(c)
 
 #####################################################################
 ########### Clean dcounts dictionary #############
 #####################################################################
 def clean(dcounts,motifs):
-	remove = []
-	for i in range(len(motifs)):
-		if sum([dcounts[x][i] for x in dcounts]) == 0:
-			remove.append(i)
+    remove = []
+    for i in range(len(motifs)):
+        if sum([dcounts[x][i] for x in dcounts]) == 0:
+            remove.append(i)
 
-	print('Removing '+str(len(remove))+' motifs with no information')
-	for x in dcounts:
-		dcounts[x] = [dcounts[x][i] for i in range(len(motifs)) if i not in remove]
+    print('Removing '+str(len(remove))+' motifs with no information')
+    for x in dcounts:
+        dcounts[x] = [dcounts[x][i] for i in range(len(motifs)) if i not in remove]
 
-	motifs = [motifs[i] for i in range(len(motifs)) if i not in remove]
+    motifs = [motifs[i] for i in range(len(motifs)) if i not in remove]
 
-	return(dcounts,motifs)
+    return(dcounts,motifs)
 
 
 #####################################################################
 ########### Similarity matrix creation from counts data #############
 #####################################################################
 def makeKin(dcounts,genes,outfn,useFast=False):
-	mat = [dcounts[g] for g in genes]
-	K = np.corrcoef(mat)
-	np.savetxt(outfn,K,delimiter='\t',fmt='%.4f')
+    '''Creates a kinship matrix based on kmer counts and outputs to either GEMMA or FaST-LMM readable file'''
+    mat = [dcounts[g] for g in genes]
+    K = np.corrcoef(mat)
+    np.savetxt(outfn,K,delimiter='\t',fmt='%.4f')
 
-	# if using fastLMM, have to insert header column and row
-	# we will do this using bash commands
-	if useFast == True:
-		rowheader = [x+' '+x for x in genes]
-		colheader = ['var'] + rowheader
-	
-		f = open('temp-colheader.txt','w')
-		f.write('\t'.join(colheader)+'\n')
-		f.close()
+    # if using fastLMM, have to insert header column and row
+    # we will do this using bash commands
+    if useFast == True:
+        rowheader = [x+' '+x for x in genes]
+        colheader = ['var'] + rowheader
 
-		f = open('temp-rowheader.txt','w')
-		f.write('\n'.join(rowheader))
-		f.close()
+        f = open('temp-colheader.txt','w')
+        f.write('\t'.join(colheader)+'\n')
+        f.close()
 
-		os.system('paste temp-rowheader.txt '+outfn+' > temp1.txt')
-		os.system('cat temp-colheader.txt temp1.txt > '+outfn+'.fastlmmc')
-		os.system('rm temp-rowheader.txt temp-colheader.txt temp1.txt '+outfn)
+        f = open('temp-rowheader.txt','w')
+        f.write('\n'.join(rowheader))
+        f.close()
+
+        os.system('paste temp-rowheader.txt '+outfn+' > temp1.txt')
+        os.system('cat temp-colheader.txt temp1.txt > '+outfn+'.fastlmmc')
+        os.system('rm temp-rowheader.txt temp-colheader.txt temp1.txt '+outfn)
 
 # make .ped files
 # the .ped files we make have the following columns:
@@ -258,36 +274,37 @@ def makeKin(dcounts,genes,outfn,useFast=False):
 # --no-sex
 # need a different ped file for each of dimers, trimers, ... sixmers, etc.
 def makePed(genes,dcounts,dexprs,outfn=None):
-	# first row of counts is the header, with motifs
-	ped = []
-	for g in genes:
-		newrow = [g,dexprs[g]] + map(isZero,dcounts[g])
-		ped.append(newrow)
+    '''Creates a .ped file for use with PLINK'''
+    # first row of counts is the header, with motifs
+    ped = []
+    for g in genes:
+        newrow = [g,dexprs[g]] + map(isZero,dcounts[g])
+        ped.append(newrow)
 
-	if outfn == None:
-		return(ped)
-	else:
-		writeDat(ped,outfn=outfn,sep='\t')
+    if outfn == None:
+        return(ped)
+    else:
+        writeDat(ped,outfn=outfn,sep='\t')
 
 # make .map files
 # each row is:  [0, geneName, 0]
 # must use --map3 in plink
 def makeMap(motifs,outfn=None):
-	mapdat = [[0,m,0] for m in motifs]
-	
-	if outfn == None:
-		return(mapdat)
-	else:
-		writeDat(mapdat,outfn=outfn,sep='\t')
+    '''Creates a .map file for use with PLINK'''
+    mapdat = [[0,m,0] for m in motifs]
+    
+    if outfn == None:
+        return(mapdat)
+    else:
+        writeDat(mapdat,outfn=outfn,sep='\t')
 
 # fills in genotype of ped files
 def isZero(x):
-	if float(x) != 0:
-		return('A A')
-	else:
-		return('T T')
-
-
+    '''Parses motif counts to dummy genotypes for PLINK/GEMMA/FaST-LMM'''
+    if float(x) != 0:
+        return('A A')
+    else:
+        return('T T')
 
 if __name__ == "__main__":
 	doAll()
