@@ -8,7 +8,7 @@ The user should make sure that PLINK, GEMMA and FaST-LMM are executable before r
 
 You can run an example of MixMir by using the data in the testdata folder.  This can be done by executing:
 
-python MixMir.py --seqf testdat/test-utrs.fa --exprf testdat/test-exprs.txt --mirf testdat/testmirs.fa --k_kin 6 --k_motif 6 --N 20 --fast 0 --out testdat/test
+`python MixMir.py --seqf testdat/test-utrs.fa --exprf testdat/test-exprs.txt --mirf testdat/testmirs.fa --k_kin 6 --k_motif 6 --N 20 --fast 0 --out testdat/test`
 
 This script will produce a list of the top 20 motifs with corresponding matches to microRNAs (miRNAs) in testdat/testmirs.fa and write to the file testdat/test-MixMir-results.txt.gemma.  If we chose the option --fast 1 instead, which uses FaST-LMM to solve the MLM instead of GEMMA, the results file will be testdat/test-MixMir-results.txt.fastlmmc. Mature miRNA sequences can be downloaded from miRBase (http://www.mirbase.org/).
 
