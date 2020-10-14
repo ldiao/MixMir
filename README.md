@@ -1,4 +1,4 @@
-MixMir is written in Python.  It has been tested on Linux (Ubuntu).  
+# MixMir is written in Python 2.7.  It has been tested on Linux (Ubuntu).  
 
 In order to run MixMir, PLINK (v1.07) must be installed (http://pngu.mgh.harvard.edu/~purcell/plink/) and a copy of the PLINK executable placed in the MixMir directory.  MixMir can run either GEMMA (v0.94) or FaST-LMM (v2.07) to solve mixed linear models (MLM).  While we include GEMMA v0.94 in the MixMir folder, FaST-LMM should be downloaded from http://research.microsoft.com/en-us/um/redmond/projects/mscompbio/fastlmm/.  The executable script should then be placed in the MixMir folder.
 
